@@ -1,0 +1,26 @@
+local  speed = 0.01
+function start( )
+    print("isrunning")
+    if (player~=nil) 
+    then
+        print("got player!")
+    else
+        print("no player here!")
+    end
+    if (enemy~=nil) 
+    then
+        print("got enemy!")
+    else
+        print("no enemy here!")
+    end
+    local PlayerTransform = player.transform.position
+    local EnemyTransform= enemy.transform.position
+    print(V3)
+
+end
+function update( )
+    if (player.transform.position.x-enemy.transform.position.x~=0) 
+    then
+        player.transform:Translate(CS.UnityEngine.Vector3.right * speed)
+    end
+end
