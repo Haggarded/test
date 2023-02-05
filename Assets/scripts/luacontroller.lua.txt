@@ -1,26 +1,86 @@
-local  speed = 0.01
+﻿local enemyAnimator
+local playerAnimator
+local quitgamebutton
+local startgamebutton
+local Enemyhpbar
+local Playerhpbar
+local Attackbar
+local textinfo
+local Pasttime=0
+local Enemyattacktime=0
+local Enemyhp=100
+local Playerhp=100
+local back=false
+local startgame=false
 function start( )
-    print("isrunning")
-    if (player~=nil) 
-    then
-        print("got player!")
-    else
-        print("no player here!")
-    end
-    if (enemy~=nil) 
-    then
-        print("got enemy!")
-    else
-        print("no enemy here!")
-    end
-    local PlayerTransform = player.transform.position
-    local EnemyTransform= enemy.transform.position
-    print(V3)
+    enemyAnimator=CS.UnityEngine.GameObject.FindGameObjectWithTag("enemy"):GetComponent(typeof(CS.UnityEngine.Animator))
+    playerAnimator=CS.UnityEngine.GameObject.FindGameObjectWithTag("player"):GetComponent(typeof(CS.UnityEngine.Animator))
+    Enemyhpbar=CS.UnityEngine.GameObject.Find("EnemyHPBar"):GetComponent(typeof(CS.UnityEngine.UI.Slider))
+    Playerhpbar=CS.UnityEngine.GameObject.Find("PlayerHPBar"):GetComponent(typeof(CS.UnityEngine.UI.Slider))
+    quitgamebutton=CS.UnityEngine.GameObject.Find("quit"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    startgamebutton=CS.UnityEngine.GameObject.Find("Start"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    textinfo=CS.UnityEngine.GameObject.Find("textimage"):GetComponentInChildren(typeof(CS.UnityEngine.UI.Text))
+    Attackbar=CS.UnityEngine.GameObject.Find("enemyattack"):GetComponent(typeof(CS.UnityEngine.UI.Slider))
+    Isattacking=false
+    attackbutton.onClick:AddListener
+    ( 
+        function()
+            playerAnimator:Play("attack",0,0.5)
+            player.transform.position=enemyposition
+            enemyAnimator:Play("takedamage")
+            back=true
+            Enemyhp=Enemyhp-10
+            Enemyhpbar.value=Enemyhp/100
+            textinfo.text= textinfo.text.."["..CS.System.DateTime.Now.Hour..":"..CS.System.DateTime.Now.Minute..":"..CS.System.DateTime.Now.Second.."]"..player.name.."对"..enemy.name.."造成了10点伤害".."\n"
+            local num= CS.UnityEngine.GameObject.Instantiate(preferb, enemypoint,false)
+            CS.UnityEngine.GameObject.Destroy(num,0.5)
+            
+
+
+        end  
+    )
+    quitgamebutton.onClick:AddListener
+    (
+        function()
+            CS.UnityEditor.EditorApplication.isPlaying = false;
+        end
+    )
+    startgamebutton.onClick:AddListener
+    (
+        function()
+            startgame=true
+        end
+    )
 
 end
+
 function update( )
-    if (player.transform.position.x-enemy.transform.position.x~=0) 
+if(back)
     then
-        player.transform:Translate(CS.UnityEngine.Vector3.right * speed)
+        if(Pasttime<0.5)
+        then
+            Pasttime=Pasttime+0.01
+        else
+            back=false
+            Pasttime=0
+            player.transform.position=playerposition
+        end
+end
+if(startgame)
+    then
+        if(Enemyattacktime<3)
+        then
+            Enemyattacktime=Enemyattacktime+0.01
+            Attackbar.value=Enemyattacktime/3
+        else
+            enemyAnimator:Play("attack",0,0.5)
+            playerAnimator:Play("takedamage")
+            textinfo.text= textinfo.text.."["..CS.System.DateTime.Now.Hour..":"..CS.System.DateTime.Now.Minute..":"..CS.System.DateTime.Now.Second.."]"..enemy.name.."对"..player.name.."造成了10点伤害".."\n"
+            Playerhp=Playerhp-10
+            local num1= CS.UnityEngine.GameObject.Instantiate(preferb, playerpoint,false)
+            CS.UnityEngine.GameObject.Destroy(num1,0.5)
+            Playerhpbar.value=Playerhp/100
+            Enemyattacktime=0
+        end
     end
 end

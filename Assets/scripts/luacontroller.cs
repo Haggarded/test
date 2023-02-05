@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using XLua;
 using System;
+using UnityEngine.UI;
 public class luacontroller : MonoBehaviour
 {
     public TextAsset luascript;
@@ -11,6 +12,8 @@ public class luacontroller : MonoBehaviour
     private Action luaupdate;
     private Action luaondestory;
     private LuaTable scripttable;
+    public Button AttackButton;
+    public GameObject Preferb;
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -21,20 +24,28 @@ public class luacontroller : MonoBehaviour
         meta.Set("__index",newlua.Global);
         scripttable.SetMetaTable(meta);   
         meta.Dispose();
-        scripttable.Set("player",GameObject.FindGameObjectWithTag("Player"));
-        scripttable.Set("enemy",GameObject.FindGameObjectWithTag("enemy"));
-        newlua.DoString(luascript.text,"luatest",scripttable);
+        AttackButton = GameObject.Find("attack").GetComponent<Button>();
+        newlua.DoString(luascript.text, "luacontroller", scripttable);
         Action luaawake=scripttable.Get<Action>("awake");
         scripttable.Get("start",out luastart);
         scripttable.Get("update",out  luaupdate);
+        
     }
     // Start is called before the first frame update
     void Start()
-    {
-         if(luastart!=null)
+    {   scripttable.Set("player",GameObject.FindGameObjectWithTag("player"));
+        scripttable.Set("enemy",GameObject.FindGameObjectWithTag("enemy"));
+        scripttable.Set("enemyposition", GameObject.FindGameObjectWithTag("enemy").transform.position-new Vector3(1,0,0));
+        scripttable.Set("playerposition", GameObject.FindGameObjectWithTag("player").transform.position);
+        scripttable.Set("attackbutton", AttackButton);
+        scripttable.Set("preferb", Preferb);
+        scripttable.Set("enemypoint", GameObject.FindGameObjectWithTag("enemypoint").transform);
+        scripttable.Set("playerpoint", GameObject.FindGameObjectWithTag("playerpoint").transform);
+        if (luastart!=null)
         {
             luastart();
         }
+        
     }
 
     // Update is called once per frame
@@ -43,7 +54,6 @@ public class luacontroller : MonoBehaviour
          if(luaupdate!=null)
         {
             luaupdate();
-            GameObject.FindGameObjectWithTag("Player").transform.Translate(Vector3.right);
         }
     }
      void ondestory()
@@ -58,4 +68,5 @@ public class luacontroller : MonoBehaviour
         scripttable.Dispose();
         newlua=null;
     }
+
 }
